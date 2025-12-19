@@ -66,7 +66,7 @@ export default class Note {
   elements: ElementStyle[]
   expiration?: number
 
-  constructor (plugin: NoteLinkPlugin) {
+  constructor(plugin: NoteLinkPlugin) {
     this.plugin = plugin
     // .getLeaf() doesn't return a `previewMode` property when a note is pinned,
     // so use the undocumented .getActiveFileView() which seems to work fine
@@ -77,15 +77,15 @@ export default class Note {
   }
 
   /**
-   * Return the name (key) of a frontmatter property, eg 'share_link'
+   * Return the name (key) of a frontmatter property, eg 'notelink_link'
    * @param key
    * @return {string} The name (key) of a frontmatter property
    */
-  field (key: YamlField): string {
+  field(key: YamlField): string {
     return this.plugin.field(key)
   }
 
-  async share () {
+  async share() {
     if (!this.plugin.settings.apiKey) {
       this.plugin.authRedirect('share').then()
       return
@@ -381,7 +381,7 @@ export default class Note {
   /**
    * Upload media attachments
    */
-  async processMedia () {
+  async processMedia() {
     const elements = ['img', 'video']
     this.status.setStatus('Processing attachments...')
     for (const el of this.contentDom.querySelectorAll(elements.join(','))) {
@@ -451,7 +451,7 @@ export default class Note {
    * Upload theme CSS, unless this file has previously been shared,
    * or the user has requested a force re-upload
    */
-  async processCss () {
+  async processCss() {
     // Upload the main CSS file only if the user has asked for it.
     // We do it this way to ensure that the CSS the user wants on the server
     // stays that way, until they ASK to overwrite it.
@@ -542,7 +542,7 @@ export default class Note {
     }
   }
 
-  async querySelectorAll (view: ViewModes) {
+  async querySelectorAll(view: ViewModes) {
     const renderer = view.modes.preview.renderer
     let html = ''
     await new Promise<void>(resolve => {
@@ -582,7 +582,7 @@ export default class Note {
    * Takes a linkText like 'Some note' or 'Some path/Some note.md' and sees if that note is already shared.
    * If it's already shared, then replace the internal link with the public link to that note.
    */
-  internalLinkToSharedNote (linkText: string, el: HTMLElement, method: InternalLinkMethod = 0) {
+  internalLinkToSharedNote(linkText: string, el: HTMLElement, method: InternalLinkMethod = 0) {
     try {
       // This is an internal link to another note - check to see if we can link to an already shared note
       const linkedFile = this.plugin.app.metadataCache.getFirstLinkpathDest(linkText, '')
@@ -609,7 +609,7 @@ export default class Note {
     return false
   }
 
-  getCalloutIcon (test: (selectorText: string) => boolean) {
+  getCalloutIcon(test: (selectorText: string) => boolean) {
     const rule = this.cssRules
       .find((rule: CSSStyleRule) => rule.selectorText && test(rule.selectorText) && rule.style.getPropertyValue('--callout-icon')) as CSSStyleRule
     if (rule) {
@@ -618,7 +618,7 @@ export default class Note {
     return ''
   }
 
-  reduceSections (sections: { el: HTMLElement }[]) {
+  reduceSections(sections: { el: HTMLElement }[]) {
     return sections.reduce((p: string, c) => p + c.el.outerHTML, '')
   }
 
@@ -627,7 +627,7 @@ export default class Note {
    * @param {string} mimeType
    * @return {string|undefined}
    */
-  extensionFromMime (mimeType: string): string | undefined {
+  extensionFromMime(mimeType: string): string | undefined {
     const mimes = cssAttachmentWhitelist
     return Object.keys(mimes).find(x => mimes[x].includes((mimeType || '').toLowerCase()))
   }
@@ -635,35 +635,35 @@ export default class Note {
   /**
    * Get the value of a frontmatter property
    */
-  getProperty (field: YamlField) {
+  getProperty(field: YamlField) {
     return this.meta?.frontmatter?.[this.plugin.field(field)]
   }
 
   /**
    * Force all related assets to upload again
    */
-  forceUpload () {
+  forceUpload() {
     this.isForceUpload = true
   }
 
   /**
    * Copy the shared link to the clipboard, regardless of the user setting
    */
-  forceClipboard () {
+  forceClipboard() {
     this.isForceClipboard = true
   }
 
   /**
    * Enable/disable encryption for the note
    */
-  shareAsPlainText (isPlainText: boolean) {
+  shareAsPlainText(isPlainText: boolean) {
     this.isEncrypted = !isPlainText
   }
 
   /**
    * Calculate an expiry datetime from the provided expiry duration
    */
-  getExpiration () {
+  getExpiration() {
     const whitelist = ['minute', 'hour', 'day', 'month']
     const expiration = this.getProperty(YamlField.expires) || this.plugin.settings.expiry
     if (expiration) {

@@ -64,12 +64,12 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   plugin: NoteLinkPlugin
   apikeyEl: TextComponent
 
-  constructor (app: App, plugin: NoteLinkPlugin) {
+  constructor(app: App, plugin: NoteLinkPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display (): void {
+  display(): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -110,7 +110,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
     // Local YAML field
     new Setting(containerEl)
       .setName('Frontmatter property prefix')
-      .setDesc('The frontmatter property for storing the shared link and updated time. A value of `share` will create frontmatter fields of `share_link` and `share_updated`.')
+      .setDesc('The frontmatter property for storing the shared link and updated time. A value of `notelink` will create frontmatter fields of `notelink_link` and `notelink_updated`. Default is `share` for backward compatibility.')
       .addText(text => text
         .setPlaceholder(DEFAULT_SETTINGS.yamlField)
         .setValue(this.plugin.settings.yamlField)
@@ -263,7 +263,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   }
 }
 
-function addDocs (setting: Setting, url: string) {
+function addDocs(setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',
