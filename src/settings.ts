@@ -42,7 +42,7 @@ export interface ShareSettings {
 }
 
 export const DEFAULT_SETTINGS: ShareSettings = {
-  server: 'https://api.note.sx',
+  server: 'https://api.notelink.app',
   uid: '',
   apiKey: '',
   yamlField: 'share',
@@ -64,12 +64,12 @@ export class ShareSettingsTab extends PluginSettingTab {
   plugin: SharePlugin
   apikeyEl: TextComponent
 
-  constructor (app: App, plugin: SharePlugin) {
+  constructor(app: App, plugin: SharePlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display (): void {
+  display(): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -114,7 +114,7 @@ export class ShareSettingsTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName(`⭐ Your shared note theme is "${this.plugin.settings.theme || 'Obsidian default theme'}"`)
       .setDesc('To set a new theme, change the theme in Obsidian to your desired theme and then use the `Force re-upload all data` command. You can change your Obsidian theme after that without affecting the theme for your shared notes.')
-      .then(setting => addDocs(setting, 'https://docs.note.sx/notes/theme'))
+      .then(setting => addDocs(setting, 'https://docs.notelink.app/notes/theme'))
 
     // Choose light/dark theme mode
     new Setting(containerEl)
@@ -235,7 +235,7 @@ export class ShareSettingsTab extends PluginSettingTab {
             await this.plugin.saveSettings()
           })
       })
-      .then(setting => addDocs(setting, 'https://docs.note.sx/notes/encryption'))
+      .then(setting => addDocs(setting, 'https://docs.notelink.app/notes/encryption'))
 
     // Default note expiry
     new Setting(containerEl)
@@ -247,11 +247,11 @@ export class ShareSettingsTab extends PluginSettingTab {
           this.plugin.settings.expiry = value
           await this.plugin.saveSettings()
         }))
-      .then(setting => addDocs(setting, 'https://docs.note.sx/notes/self-deleting-notes'))
+      .then(setting => addDocs(setting, 'https://docs.notelink.app/notes/self-deleting-notes'))
   }
 }
 
-function addDocs (setting: Setting, url: string) {
+function addDocs(setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',
