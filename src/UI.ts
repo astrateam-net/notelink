@@ -1,4 +1,5 @@
 import { App, Modal, Setting } from 'obsidian'
+import { t } from './i18n'
 
 class ConfirmDialog extends Modal {
   app: App
@@ -24,7 +25,7 @@ class ConfirmDialog extends Modal {
     new Setting(contentEl)
       .addButton(btn =>
         btn
-          .setButtonText('🗑️ Yes, delete')
+          .setButtonText(t('dialog_yes_delete'))
           .setCta()
           .onClick(() => {
             this.close()
@@ -32,7 +33,7 @@ class ConfirmDialog extends Modal {
           }))
       .addButton(btn =>
         btn
-          .setButtonText('No, cancel')
+          .setButtonText(t('dialog_no_cancel'))
           .onClick(() => {
             this.close()
           }))

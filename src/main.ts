@@ -5,6 +5,7 @@ import API, { parseExistingShareUrl } from './api'
 import StatusMessage, { StatusType } from './StatusMessage'
 import { shortHash, sha256 } from './crypto'
 import UI from './UI'
+import { initI18n, setLocale, t } from './i18n'
 
 export default class NoteLinkPlugin extends Plugin {
   settings: NoteLinkSettings
@@ -19,6 +20,13 @@ export default class NoteLinkPlugin extends Plugin {
   async onload () {
     // Settings page
     await this.loadSettings()
+
+    // Initialise i18n
+    initI18n()
+    if (this.settings.language && this.settings.language !== 'auto') {
+      setLocale(this.settings.language)
+    }
+
     if (!this.settings.uid) {
       // Set up a random UID if the user does not already have one
       this.settings.uid = await shortHash('' + Date.now() + Math.random())
@@ -54,7 +62,7 @@ export default class NoteLinkPlugin extends Plugin {
           this.uploadNote().then()
         } else {
           // Otherwise show a success message
-          new StatusMessage('Plugin successfully connected. You can now start sharing notes!', StatusType.Success, 6000)
+          new StatusMessage(t('plugin_connected'), StatusType.Success, 6000)
         }
       }
     })
@@ -62,21 +70,21 @@ export default class NoteLinkPlugin extends Plugin {
     // Add command - Share NoteLink
     this.addCommand({
       id: 'note-link',
-      name: 'Share current note',
+      name: t('cmd_share_note'),
       callback: () => this.uploadNote()
     })
 
     // Add command - Share NoteLink and force a re-upload of all assets
     this.addCommand({
       id: 'force-upload',
-      name: 'Force re-upload of all data for this note',
+      name: t('cmd_force_upload'),
       callback: () => this.uploadNote(true)
     })
 
     // Add command - Delete NoteLink
     this.addCommand({
       id: 'delete-note',
-      name: 'Delete this NoteLink',
+      name: t('cmd_delete_note'),
       checkCallback: (checking: boolean) => {
         const sharedFile = this.hasSharedFile()
         if (checking) {
@@ -90,7 +98,7 @@ export default class NoteLinkPlugin extends Plugin {
     // Add command - Copy shared link
     this.addCommand({
       id: 'copy-link',
-      name: 'Copy NoteLink URL',
+      name: t('cmd_copy_link'),
       checkCallback: (checking: boolean) => {
         const file = this.app.workspace.getActiveFile()
         if (checking) {
@@ -107,12 +115,12 @@ export default class NoteLinkPlugin extends Plugin {
         if (file instanceof TFile && file.extension === 'md') {
           menu.addItem((item) => {
             item.setIcon('globe')
-            item.setTitle('Share NoteLink on the web')
+            item.setTitle(t('menu_share_web'))
             item.onClick(() => this.uploadNote())
           })
           menu.addItem((item) => {
             item.setIcon('share-2')
-            item.setTitle('Copy NoteLink URL')
+            item.setTitle(t('menu_copy_url'))
             item.onClick(async () => {
               await this.copyShareLink(file)
             })
@@ -175,7 +183,7 @@ export default class NoteLinkPlugin extends Plugin {
         // Known errors are outputted by api.js
         if (e.message !== 'Known error') {
           console.log(e)
-          new StatusMessage('There was an error uploading the note, please try again.', StatusType.Error)
+          new StatusMessage(t('error_uploading_note'), StatusType.Error)
         }
       }
       note.status.hide() // clean up status just in case
@@ -193,7 +201,7 @@ export default class NoteLinkPlugin extends Plugin {
     if (shareLink) {
       // The note is already shared, copy the link to the clipboard
       await navigator.clipboard.writeText(shareLink)
-      new StatusMessage('📋 Shared link copied to clipboard')
+      new StatusMessage(t('link_copied'))
     } else {
       // The note is not already shared, share it first and copy the link to the clipboard
       await this.uploadNote(false, true)
@@ -205,10 +213,10 @@ export default class NoteLinkPlugin extends Plugin {
     const sharedFile = this.hasSharedFile(file)
     if (sharedFile) {
       this.ui.confirmDialog(
-        'Delete NoteLink?',
-        'Are you sure you want to delete this NoteLink and the shared link? This will not delete your local note.',
+        t('dialog_delete_title'),
+        t('dialog_delete_body'),
         async () => {
-          new StatusMessage('Deleting note...')
+          new StatusMessage(t('deleting_note'))
           await this.api.deleteSharedNote(sharedFile.url)
           await this.app.fileManager.processFrontMatter(sharedFile.file, (frontmatter) => {
             // Remove the shared link
@@ -245,20 +253,20 @@ export default class NoteLinkPlugin extends Plugin {
             iconsEl.classList.add('notelink-icons')
             // Re-share note icon
             const shareIcon = iconsEl.createEl('span')
-            shareIcon.title = 'Re-share note'
+            shareIcon.title = t('icon_reshare')
             setIcon(shareIcon, 'upload-cloud')
             shareIcon.onclick = () => this.uploadNote()
             // Copy to clipboard icon
             const copyIcon = iconsEl.createEl('span')
-            copyIcon.title = 'Copy link to clipboard'
+            copyIcon.title = t('icon_copy_link')
             setIcon(copyIcon, 'copy')
             copyIcon.onclick = async () => {
               await navigator.clipboard.writeText(shareLink)
-              new StatusMessage('📋 Shared link copied to clipboard')
+              new StatusMessage(t('link_copied'))
             }
             // Delete shared note icon
             const deleteIcon = iconsEl.createEl('span')
-            deleteIcon.title = 'Delete NoteLink'
+            deleteIcon.title = t('icon_delete')
             setIcon(deleteIcon, 'trash-2')
             deleteIcon.onclick = () => this.deleteSharedNote(activeFile)
             valueEl.prepend(iconsEl)

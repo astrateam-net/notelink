@@ -1,4 +1,4 @@
-import { CachedMetadata, moment, requestUrl, TFile, View, WorkspaceLeaf } from 'obsidian'
+import { CachedMetadata, moment as obsidianMoment, requestUrl, TFile, View, WorkspaceLeaf } from 'obsidian'
 import { encryptString, sha1 } from './crypto'
 import NoteLinkPlugin from './main'
 import StatusMessage, { StatusType } from './StatusMessage'
@@ -9,7 +9,11 @@ import FileTypes from './libraries/FileTypes'
 import { CheckFilesResult, parseExistingShareUrl } from './api'
 import { minify } from 'csso'
 import { InternalLinkMethod } from './types'
-import DurationConstructor = moment.unitOfTime.DurationConstructor
+import { t } from './i18n'
+
+// Obsidian re-exports moment; cast to callable
+const moment = obsidianMoment as unknown as typeof import('moment')
+type DurationConstructor = import('moment').unitOfTime.DurationConstructor
 
 const cssAttachmentWhitelist: { [key: string]: string[] } = {
   ttf: ['font/ttf', 'application/x-font-ttf', 'application/x-font-truetype', 'font/truetype'],
@@ -41,8 +45,8 @@ export interface Renderer {
 }
 
 export interface ViewModes extends View {
-  getViewType: any,
-  getDisplayText: any,
+  getViewType: () => string,
+  getDisplayText: () => string,
   modes: {
     preview: {
       renderer: Renderer
@@ -92,7 +96,7 @@ export default class Note {
     }
 
     // Create a semi-permanent status notice which we can update
-    this.status = new StatusMessage('If this message is showing, please do not change to another note as the current note data is still being parsed.', StatusType.Default, 60 * 1000)
+    this.status = new StatusMessage(t('parsing_warning'), StatusType.Default, 60 * 1000)
 
     const startMode = this.leaf.getViewState()
     const previewMode = this.leaf.getViewState()
@@ -139,7 +143,7 @@ export default class Note {
     } catch (e) {
       console.log(e)
       this.status.hide()
-      new StatusMessage('Failed to parse current note, check console for details', StatusType.Error)
+      new StatusMessage(t('failed_to_parse'), StatusType.Error)
       return
     }
 
@@ -149,12 +153,12 @@ export default class Note {
       this.leaf.setViewState(startMode)
     }, 200)
 
-    this.status.setStatus('Processing note...')
+    this.status.setStatus(t('processing_note'))
     const file = this.plugin.app.workspace.getActiveFile()
     if (!(file instanceof TFile)) {
       // No active file
       this.status.hide()
-      new StatusMessage('There is no active file to share')
+      new StatusMessage(t('no_active_file'))
       return
     }
     this.meta = this.plugin.app.metadataCache.getFileCache(file)
@@ -305,7 +309,7 @@ export default class Note {
     }
 
     if (this.isEncrypted) {
-      this.status.setStatus('Encrypting note...')
+      this.status.setStatus(t('encrypting_note'))
       const plaintext = JSON.stringify({
         content: this.contentDom.body.innerHTML,
         basename: title
@@ -346,7 +350,7 @@ export default class Note {
     this.template.mathJax = !!this.contentDom.body.innerHTML.match(/<mjx-container/)
 
     // Share the file
-    this.status.setStatus('Uploading note...')
+    this.status.setStatus(t('uploading_note'))
     let shareLink = await this.plugin.api.createNote(this.template, this.expiration)
     requestUrl(shareLink).then().catch() // Fetch the uploaded file to pull it through the cache
 
@@ -355,7 +359,7 @@ export default class Note {
       shareLink += '#' + decryptionKey
     }
 
-    let shareMessage = 'The note has been shared'
+    let shareMessage = t('note_shared')
     if (shareLink) {
       await this.plugin.app.fileManager.processFrontMatter(file, (frontmatter) => {
         // Update the frontmatter with the share link
@@ -366,7 +370,7 @@ export default class Note {
         // Copy the share link to the clipboard
         try {
           await navigator.clipboard.writeText(shareLink)
-          shareMessage = `${shareMessage} and the link is copied to your clipboard 📋`
+          shareMessage = t('note_shared_clipboard')
         } catch (e) {
           // If there's an error here it's because the user clicked away from the Obsidian window
         }
@@ -375,7 +379,7 @@ export default class Note {
     }
 
     this.status.hide()
-    new StatusMessage(shareMessage + `<br><br><a href="${shareLink}">↗️ Open shared note</a>`, StatusType.Success, 6000)
+    new StatusMessage(shareMessage + `<br><br><a href="${shareLink}">${t('open_shared_note')}</a>`, StatusType.Success, 6000)
   }
 
   /**
@@ -383,7 +387,7 @@ export default class Note {
    */
   async processMedia () {
     const elements = ['img', 'video']
-    this.status.setStatus('Processing attachments...')
+    this.status.setStatus(t('processing_attachments'))
     for (const el of this.contentDom.querySelectorAll(elements.join(','))) {
       const src = el.getAttribute('src')
       if (!src) continue
@@ -458,7 +462,7 @@ export default class Note {
     if (this.isForceUpload || !this.cssResult) {
       // Extract any attachments from the CSS.
       // Will use the mime-type whitelist to determine which attachments to extract.
-      this.status.setStatus('Processing CSS...')
+      this.status.setStatus(t('processing_css'))
       const attachments = this.css.match(/url\s*\(.*?\)/g) || []
       for (const attachment of attachments) {
         const assetMatch = attachment.match(/url\s*\(\s*"*(.*?)\s*(?<!\\)"\s*\)/)

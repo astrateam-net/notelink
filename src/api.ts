@@ -5,6 +5,7 @@ import { sha1, sha256 } from './crypto'
 import NoteTemplate from './NoteTemplate'
 import { SharedUrl } from './note'
 import { compressImage } from './Compressor'
+import { t } from './i18n'
 
 const pluginVersion = require('../manifest.json').version
 
@@ -164,12 +165,13 @@ export default class API {
 
     let count = 1
     const promises: Promise<void>[] = []
+    const typeLabel = type === 'attachment' ? t('attachment') : t('css')
     for (const queueItem of this.uploadQueue) {
       // Get the result from check-files (if exists)
       const checkFile = res?.files.find((item: FileUpload) => item.hash === queueItem.data.hash && item.filetype === queueItem.data.filetype)
       if (checkFile?.url) {
         // File is already uploaded, just process the callback
-        status.setStatus(`Uploading ${type} ${count++} of ${this.uploadQueue.length}...`)
+        status.setStatus(t('uploading_type', { type: typeLabel, count: count++, total: this.uploadQueue.length }))
         queueItem.callback(checkFile.url)
       } else {
         // File needs to be uploaded
@@ -177,7 +179,7 @@ export default class API {
           this.postRaw('/v1/file/upload', queueItem.data)
             .then((res) => {
               // Process the callback
-              status.setStatus(`Uploading ${type} ${count++} of ${this.uploadQueue.length}...`)
+              status.setStatus(t('uploading_type', { type: typeLabel, count: count++, total: this.uploadQueue.length }))
               queueItem.callback(res.url)
               resolve()
             })
@@ -217,7 +219,7 @@ export default class API {
         filename: url.filename,
         filetype: 'html'
       })
-      new StatusMessage('The note has been deleted 🗑️', StatusType.Info)
+      new StatusMessage(t('note_deleted'), StatusType.Info)
     }
   }
 }
