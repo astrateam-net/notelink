@@ -99,7 +99,7 @@ jobs:
         with:
           token: "${{ steps.app-token.outputs.token }}"
           tag_name: ${{ steps.version.outputs.VERSION }}
-          name: NoteLink v${{ steps.version.outputs.VERSION }}
+          name: NoteLink v${{ steps.version.outputs.VERSION_NUMBER }}
           body_path: /tmp/changelog_body.md
           files: |
             main.js
