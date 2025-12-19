@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting, TextComponent } from 'obsidian'
-import SharePlugin from './main'
+import NoteLinkPlugin from './main'
 
 export enum ThemeMode {
   'Same as theme',
@@ -22,7 +22,7 @@ export enum YamlField {
   expires
 }
 
-export interface ShareSettings {
+export interface NoteLinkSettings {
   server: string;
   uid: string;
   apiKey: string;
@@ -41,7 +41,7 @@ export interface ShareSettings {
   debug: number;
 }
 
-export const DEFAULT_SETTINGS: ShareSettings = {
+export const DEFAULT_SETTINGS: NoteLinkSettings = {
   server: 'https://api.notelink.app',
   uid: '',
   apiKey: '',
@@ -60,19 +60,31 @@ export const DEFAULT_SETTINGS: ShareSettings = {
   debug: 0
 }
 
-export class ShareSettingsTab extends PluginSettingTab {
-  plugin: SharePlugin
+export class NoteLinkSettingsTab extends PluginSettingTab {
+  plugin: NoteLinkPlugin
   apikeyEl: TextComponent
 
-  constructor (app: App, plugin: SharePlugin) {
+  constructor(app: App, plugin: NoteLinkPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display (): void {
+  display(): void {
     const { containerEl } = this
 
     containerEl.empty()
+
+    // Server URL
+    new Setting(containerEl)
+      .setName('Server URL')
+      .setDesc('The NoteLink API server URL. Change this if you are self-hosting.')
+      .addText(text => text
+        .setPlaceholder(DEFAULT_SETTINGS.server)
+        .setValue(this.plugin.settings.server)
+        .onChange(async (value) => {
+          this.plugin.settings.server = value || DEFAULT_SETTINGS.server
+          await this.plugin.saveSettings()
+        }))
 
     // API key
     new Setting(containerEl)
@@ -251,7 +263,7 @@ export class ShareSettingsTab extends PluginSettingTab {
   }
 }
 
-function addDocs (setting: Setting, url: string) {
+function addDocs(setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',

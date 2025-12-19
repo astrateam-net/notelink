@@ -1,22 +1,22 @@
 import { Plugin, setIcon, TFile } from 'obsidian'
-import { DEFAULT_SETTINGS, ShareSettings, ShareSettingsTab, YamlField } from './settings'
+import { DEFAULT_SETTINGS, NoteLinkSettings, NoteLinkSettingsTab, YamlField } from './settings'
 import Note, { SharedNote } from './note'
 import API, { parseExistingShareUrl } from './api'
 import StatusMessage, { StatusType } from './StatusMessage'
 import { shortHash, sha256 } from './crypto'
 import UI from './UI'
 
-export default class SharePlugin extends Plugin {
-  settings: ShareSettings
+export default class NoteLinkPlugin extends Plugin {
+  settings: NoteLinkSettings
   api: API
-  settingsPage: ShareSettingsTab
+  settingsPage: NoteLinkSettingsTab
   ui: UI
 
   // Expose some tools in the plugin object
   hash = shortHash
   sha256 = sha256
 
-  async onload () {
+  async onload() {
     // Settings page
     await this.loadSettings()
     if (!this.settings.uid) {
@@ -29,7 +29,7 @@ export default class SharePlugin extends Plugin {
       this.settings.server = 'https://api.note.sx'
       await this.saveSettings()
     }
-    this.settingsPage = new ShareSettingsTab(this.app, this)
+    this.settingsPage = new NoteLinkSettingsTab(this.app, this)
     this.addSettingTab(this.settingsPage)
 
     // Initialise the backend API
@@ -127,15 +127,15 @@ export default class SharePlugin extends Plugin {
     }))
   }
 
-  onunload () {
+  onunload() {
 
   }
 
-  async loadSettings () {
+  async loadSettings() {
     this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData())
   }
 
-  async saveSettings () {
+  async saveSettings() {
     await this.saveData(this.settings)
   }
 
@@ -144,7 +144,7 @@ export default class SharePlugin extends Plugin {
    * @param forceUpload - Optionally force an upload of all related assets
    * @param forceClipboard - Optionally copy the link to the clipboard, regardless of the user setting
    */
-  async uploadNote (forceUpload = false, forceClipboard = false) {
+  async uploadNote(forceUpload = false, forceClipboard = false) {
     const file = this.app.workspace.getActiveFile()
     if (file instanceof TFile) {
       const meta = this.app.metadataCache.getFileCache(file)
@@ -187,7 +187,7 @@ export default class SharePlugin extends Plugin {
    * Copy the share link to the clipboard. The note will be shared first if neccessary.
    * @param file
    */
-  async copyShareLink (file: TFile): Promise<string | undefined> {
+  async copyShareLink(file: TFile): Promise<string | undefined> {
     const meta = this.app.metadataCache.getFileCache(file)
     const shareLink = meta?.frontmatter?.[this.settings.yamlField + '_' + YamlField[YamlField.link]]
     if (shareLink) {
@@ -201,7 +201,7 @@ export default class SharePlugin extends Plugin {
     return shareLink
   }
 
-  async deleteSharedNote (file: TFile) {
+  async deleteSharedNote(file: TFile) {
     const sharedFile = this.hasSharedFile(file)
     if (sharedFile) {
       this.ui.confirmDialog(
@@ -219,7 +219,7 @@ export default class SharePlugin extends Plugin {
     }
   }
 
-  addShareIcons () {
+  addShareIcons() {
     // I tried using onLayoutReady() here rather than a timeout/interval, but it did not work.
     // It seems that the layout is still updating even after it is "ready".
     let count = 0
@@ -271,13 +271,13 @@ export default class SharePlugin extends Plugin {
    * Redirect a user back to their position in the flow after they finish the auth.
    * NULL to clear the redirection.
    */
-  async authRedirect (value: string | null) {
+  async authRedirect(value: string | null) {
     this.settings.authRedirect = value
     await this.saveSettings()
     if (value) window.open(this.settings.server + '/v1/account/get-key?id=' + this.settings.uid)
   }
 
-  hasSharedFile (file?: TFile) {
+  hasSharedFile(file?: TFile) {
     if (!file) {
       file = this.app.workspace.getActiveFile() || undefined
     }
@@ -294,7 +294,7 @@ export default class SharePlugin extends Plugin {
     return false
   }
 
-  field (key: YamlField) {
+  field(key: YamlField) {
     return [this.settings.yamlField, YamlField[key]].join('_')
   }
 }
