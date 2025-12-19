@@ -45,7 +45,7 @@ export const DEFAULT_SETTINGS: NoteLinkSettings = {
   server: 'https://api.notelink.app',
   uid: '',
   apiKey: '',
-  yamlField: 'share',
+  yamlField: 'notelink',
   noteWidth: '',
   theme: '',
   themeMode: ThemeMode['Same as theme'],
@@ -64,12 +64,12 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   plugin: NoteLinkPlugin
   apikeyEl: TextComponent
 
-  constructor(app: App, plugin: NoteLinkPlugin) {
+  constructor (app: App, plugin: NoteLinkPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display(): void {
+  display (): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -110,7 +110,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
     // Local YAML field
     new Setting(containerEl)
       .setName('Frontmatter property prefix')
-      .setDesc('The frontmatter property for storing the shared link and updated time. A value of `notelink` will create frontmatter fields of `notelink_link` and `notelink_updated`. Default is `share` for backward compatibility.')
+      .setDesc('The frontmatter property for storing the shared link and updated time. A value of `notelink` will create frontmatter fields of `notelink_link` and `notelink_updated`.')
       .addText(text => text
         .setPlaceholder(DEFAULT_SETTINGS.yamlField)
         .setValue(this.plugin.settings.yamlField)
@@ -125,7 +125,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName(`⭐ Your shared note theme is "${this.plugin.settings.theme || 'Obsidian default theme'}"`)
-      .setDesc('To set a new theme, change the theme in Obsidian to your desired theme and then use the `Force re-upload all data` command. You can change your Obsidian theme after that without affecting the theme for your shared notes.')
+      .setDesc('To set a new theme, change the theme in Obsidian to your desired theme and then use the `Force re-upload all data` command. You can change your Obsidian theme after that without affecting the theme for your NoteLinks.')
       .then(setting => addDocs(setting, 'https://docs.notelink.app/notes/theme'))
 
     // Choose light/dark theme mode
@@ -198,7 +198,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
     // Strip frontmatter
     new Setting(containerEl)
       .setName('Remove published frontmatter/YAML')
-      .setDesc('Remove frontmatter/YAML/properties from the shared note')
+      .setDesc('Remove frontmatter/YAML/properties from the NoteLink')
       .addToggle(toggle => {
         toggle
           .setValue(this.plugin.settings.removeYaml)
@@ -211,7 +211,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
     // Strip backlinks footer
     new Setting(containerEl)
       .setName('Remove backlinks footer')
-      .setDesc('Remove backlinks footer from the shared note')
+      .setDesc('Remove backlinks footer from the NoteLink')
       .addToggle(toggle => {
         toggle
           .setValue(this.plugin.settings.removeBacklinksFooter)
@@ -263,7 +263,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   }
 }
 
-function addDocs(setting: Setting, url: string) {
+function addDocs (setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',

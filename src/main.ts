@@ -24,9 +24,9 @@ export default class NoteLinkPlugin extends Plugin {
       this.settings.uid = await shortHash('' + Date.now() + Math.random())
       await this.saveSettings()
     }
-    if (this.settings.server === 'https://api.obsidianshare.com') {
-      // Migrate to new server
-      this.settings.server = 'https://api.note.sx'
+    if (this.settings.server === 'https://api.obsidianshare.com' || this.settings.server === 'https://api.note.sx') {
+      // Migrate to new NoteLink server
+      this.settings.server = 'https://api.notelink.app'
       await this.saveSettings()
     }
     this.settingsPage = new NoteLinkSettingsTab(this.app, this)
@@ -59,24 +59,24 @@ export default class NoteLinkPlugin extends Plugin {
       }
     })
 
-    // Add command - Share note
+    // Add command - Share NoteLink
     this.addCommand({
       id: 'note-link',
       name: 'Share current note',
       callback: () => this.uploadNote()
     })
 
-    // Add command - Share note and force a re-upload of all assets
+    // Add command - Share NoteLink and force a re-upload of all assets
     this.addCommand({
       id: 'force-upload',
       name: 'Force re-upload of all data for this note',
       callback: () => this.uploadNote(true)
     })
 
-    // Add command - Delete shared note
+    // Add command - Delete NoteLink
     this.addCommand({
       id: 'delete-note',
-      name: 'Delete this shared note',
+      name: 'Delete this NoteLink',
       checkCallback: (checking: boolean) => {
         const sharedFile = this.hasSharedFile()
         if (checking) {
@@ -90,7 +90,7 @@ export default class NoteLinkPlugin extends Plugin {
     // Add command - Copy shared link
     this.addCommand({
       id: 'copy-link',
-      name: 'Copy shared note link',
+      name: 'Copy NoteLink URL',
       checkCallback: (checking: boolean) => {
         const file = this.app.workspace.getActiveFile()
         if (checking) {
@@ -107,12 +107,12 @@ export default class NoteLinkPlugin extends Plugin {
         if (file instanceof TFile && file.extension === 'md') {
           menu.addItem((item) => {
             item.setIcon('globe')
-            item.setTitle('Share note on the web')
+            item.setTitle('Share NoteLink on the web')
             item.onClick(() => this.uploadNote())
           })
           menu.addItem((item) => {
             item.setIcon('share-2')
-            item.setTitle('Copy shared link')
+            item.setTitle('Copy NoteLink URL')
             item.onClick(async () => {
               await this.copyShareLink(file)
             })
@@ -205,8 +205,8 @@ export default class NoteLinkPlugin extends Plugin {
     const sharedFile = this.hasSharedFile(file)
     if (sharedFile) {
       this.ui.confirmDialog(
-        'Delete shared note?',
-        'Are you sure you want to delete this shared note and the shared link? This will not delete your local note.',
+        'Delete NoteLink?',
+        'Are you sure you want to delete this NoteLink and the shared link? This will not delete your local note.',
         async () => {
           new StatusMessage('Deleting note...')
           await this.api.deleteSharedNote(sharedFile.url)
@@ -258,7 +258,7 @@ export default class NoteLinkPlugin extends Plugin {
             }
             // Delete shared note icon
             const deleteIcon = iconsEl.createEl('span')
-            deleteIcon.title = 'Delete shared note'
+            deleteIcon.title = 'Delete NoteLink'
             setIcon(deleteIcon, 'trash-2')
             deleteIcon.onclick = () => this.deleteSharedNote(activeFile)
             valueEl.prepend(iconsEl)
