@@ -88,11 +88,11 @@ The content of your note is encrypted by default. What this means is that you ca
 
 When you share an encrypted note, you'll get a share link that looks like this:
 
-`https://share.note.sx/4earajc8#PtC3oQDjDQK9VP7fljmQkLBA/rIMb2tbFsGoG44VdFY`
+`https://notelink.app/share/4earajc8#PtC3oQDjDQK9VP7fljmQkLBA/rIMb2tbFsGoG44VdFY`
 
 This part is the link to the file:
 
-`https://share.note.sx/4earajc8`
+`https://notelink.app/share/4earajc8`
 
 If you click on it, you'll see a message that says "*Encrypted note*", because you haven't provided the decryption key.
 
