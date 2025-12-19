@@ -33,7 +33,7 @@ export default class StatusMessage extends Notice {
   messageEl: HTMLDivElement
   icon: string
 
-  constructor(text: string, type: StatusType = StatusType.Default, duration = 5000) {
+  constructor (text: string, type: StatusType = StatusType.Default, duration = 5000) {
     const messageDoc = new DocumentFragment()
 
     const icon = statuses[type]?.icon || ''
@@ -49,7 +49,7 @@ export default class StatusMessage extends Notice {
     this.messageEl = messageEl
   }
 
-  setStatus(message: string) {
+  setStatus (message: string) {
     this.messageEl.innerText = `${this.icon}${pluginName}: ${message}`
   }
 }

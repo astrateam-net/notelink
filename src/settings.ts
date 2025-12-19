@@ -64,12 +64,12 @@ export class ShareSettingsTab extends PluginSettingTab {
   plugin: SharePlugin
   apikeyEl: TextComponent
 
-  constructor(app: App, plugin: SharePlugin) {
+  constructor (app: App, plugin: SharePlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display(): void {
+  display (): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -251,7 +251,7 @@ export class ShareSettingsTab extends PluginSettingTab {
   }
 }
 
-function addDocs(setting: Setting, url: string) {
+function addDocs (setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',

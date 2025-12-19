@@ -46,12 +46,12 @@ export default class API {
   plugin: SharePlugin
   uploadQueue: UploadQueueItem[]
 
-  constructor(plugin: SharePlugin) {
+  constructor (plugin: SharePlugin) {
     this.plugin = plugin
     this.uploadQueue = []
   }
 
-  async authHeaders() {
+  async authHeaders () {
     const nonce = Date.now().toString()
     return {
       'x-notelink-id': this.plugin.settings.uid,
@@ -61,7 +61,7 @@ export default class API {
     }
   }
 
-  async post(endpoint: string, data?: PostData, retries = 1) {
+  async post (endpoint: string, data?: PostData, retries = 1) {
     const headers: HeadersInit = {
       ...(await this.authHeaders()),
       'Content-Type': 'application/json'
@@ -106,7 +106,7 @@ export default class API {
     }
   }
 
-  async postRaw(endpoint: string, data: FileUpload, retries = 4) {
+  async postRaw (endpoint: string, data: FileUpload, retries = 4) {
     const headers: HeadersInit = {
       ...(await this.authHeaders()),
       'x-notelink-filetype': data.filetype,
@@ -138,7 +138,7 @@ export default class API {
     }
   }
 
-  async queueUpload(item: UploadQueueItem) {
+  async queueUpload (item: UploadQueueItem) {
     // Compress the data if possible
     if (item.data.content) {
       const compressed = await compressImage(item.data.content as ArrayBuffer, item.data.filetype)
@@ -150,7 +150,7 @@ export default class API {
     this.uploadQueue.push(item)
   }
 
-  async processQueue(status: StatusMessage, type = 'attachment') {
+  async processQueue (status: StatusMessage, type = 'attachment') {
     // Check with the server to find which files need to be updated
     const res = await this.post('/v1/file/check-files', {
       files: this.uploadQueue.map(x => {
@@ -194,12 +194,12 @@ export default class API {
     return res
   }
 
-  async upload(data: FileUpload) {
+  async upload (data: FileUpload) {
     const res = await this.postRaw('/v1/file/upload', data)
     return res.url
   }
 
-  async createNote(template: NoteTemplate, expiration?: number) {
+  async createNote (template: NoteTemplate, expiration?: number) {
     const res = await this.post('/v1/file/create-note', {
       filename: template.filename,
       filetype: 'html',
@@ -210,7 +210,7 @@ export default class API {
     return res.url
   }
 
-  async deleteSharedNote(shareUrl: string) {
+  async deleteSharedNote (shareUrl: string) {
     const url = parseExistingShareUrl(shareUrl)
     if (url) {
       await this.post('/v1/file/delete', {
@@ -222,7 +222,7 @@ export default class API {
   }
 }
 
-export function parseExistingShareUrl(url: string): SharedUrl | false {
+export function parseExistingShareUrl (url: string): SharedUrl | false {
   const match = url.match(/(\w+)(#.+?|)$/)
   if (match) {
     return {
