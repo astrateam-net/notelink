@@ -64,12 +64,12 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   plugin: NoteLinkPlugin
   apikeyEl: TextComponent
 
-  constructor(app: App, plugin: NoteLinkPlugin) {
+  constructor (app: App, plugin: NoteLinkPlugin) {
     super(app, plugin)
     this.plugin = plugin
   }
 
-  display(): void {
+  display (): void {
     const { containerEl } = this
 
     containerEl.empty()
@@ -263,7 +263,7 @@ export class NoteLinkSettingsTab extends PluginSettingTab {
   }
 }
 
-function addDocs(setting: Setting, url: string) {
+function addDocs (setting: Setting, url: string) {
   setting.descEl.createEl('br')
   setting.descEl.createEl('a', {
     text: 'View the documentation',
